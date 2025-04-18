@@ -18,6 +18,8 @@ const response = {
   COMMENT_ADD_SUCCESSFUL_MESSAGE: "Comment add successful",
   PROJECT_CREATE_SUCCESSFUL_MESSAGE: "Project create successful",
   DO_NOT_CREATE_MORE_TASK_MESSAGE: "Do not create more than 10 tasks",
+  PROJECT_NOT_FOUND_MESSAGE: "Project not found",
+  NOT_FOUND_ANY_MEMBER_MESSAGE: "Member not found",
 };
 
 module.exports = response;

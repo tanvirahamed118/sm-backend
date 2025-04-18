@@ -14,6 +14,7 @@ const TaskRouter = require("./route/task.route");
 const MessageRouter = require("./route/message.route");
 const NotificationRouter = require("./route/notification.route");
 const CommentRouter = require("./route/comment.route");
+const AIRouter = require("./route/ai.route");
 
 // app middlewares
 app.use(express.json());
@@ -40,6 +41,7 @@ app.use("/api/task", TaskRouter);
 app.use("/api/message", MessageRouter);
 app.use("/api/notification", NotificationRouter);
 app.use("/api/comment", CommentRouter);
+app.use("/api/ai", AIRouter);
 
 // main route
 app.get("/", (req, res) => {
