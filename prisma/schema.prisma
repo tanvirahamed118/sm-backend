@@ -1,0 +1,156 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model user {
+  id                 Int             @id @default(autoincrement())
+  username           String?
+  firstName          String?
+  lastName           String?
+  agreement          Boolean?        @default(false)
+  email              String?         @unique
+  password           String?
+  phone              String?
+  address            String?
+  secretKey          String?
+  role               Role
+  verify             Boolean?        @default(false)
+  logo               String?
+  cover              String?
+  create_at          DateTime        @default(now())
+  update_at          DateTime        @updatedAt
+  projects           project[]       @relation("ProjectOwner")
+  assigners              task[]          @relation("TaskAssignee")
+  owners              task[]          @relation("owner")
+  projectMemberships projectMember[]
+  messages       message[] 
+  notifications       notification[]
+  commentOwners       comment[] @relation("commentOwner")
+  commentassigns      comment[] @relation("assigner")
+}
+
+enum Role {
+  ADMIN
+  PROJECT_MANAGER
+  TEAM_MEMBER
+}
+
+model project {
+  id          Int             @id @default(autoincrement())
+  title       String?
+  description String?
+  startDate   String?
+  endDate     String?
+  status status @default(IN_PROGRESS)
+  verify Boolean @default(false)
+  file String?
+  ownerId     Int
+  owner       user            @relation("ProjectOwner", fields: [ownerId], references: [id], onDelete: Cascade)
+  teamMembers projectMember[]
+  tasks       task[]
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+  comments comment[]
+}
+
+enum status {
+  IN_PROGRESS
+  COMPLETED
+  CANCELED
+}
+
+
+model projectMember {
+  id        Int     @id @default(autoincrement())
+  userId    Int
+  userName String 
+  heading String
+  projectId Int 
+  user      user    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  project   project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+}
+
+model task {
+  id          Int          @id @default(autoincrement())
+  title       String?
+  description String?
+  startDate   String?
+  endDate     String?
+  status      taskStatus   @default(IN_PROGRESS)
+  priority    taskPriority @default(MEDIUM)
+  messages message[]
+  projectId   Int
+  file String?
+  verify Boolean @default(false)
+  ownerId   Int
+  assigneeId  Int
+  project     project      @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  assignee    user        @relation("TaskAssignee", fields: [assigneeId], references: [id], onDelete: Cascade)
+  owner   user        @relation("owner", fields: [ownerId], references: [id], onDelete: Cascade)
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  comments comment[]
+}
+
+enum taskStatus {
+  IN_PROGRESS
+  COMPLETED
+  CANCELED
+}
+
+enum taskPriority {
+  LOW
+  MEDIUM
+  HIGH
+}
+
+model message {
+  id        Int          @id @default(autoincrement())
+  message String
+  senderId Int
+  username String
+  taskId Int
+  read Boolean @default(false)
+  sender     user     @relation( fields: [senderId], references: [id], onDelete: Cascade)
+  tasks   task     @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+}
+
+model comment {
+  id Int @id @default(autoincrement())
+  comment String
+  creatorId Int
+  assigneerId Int
+  taskId Int
+  projectId Int
+  creator user @relation("commentOwner", fields: [creatorId], references: [id], onDelete: Cascade)
+  assigner user @relation("assigner", fields: [assigneerId], references: [id], onDelete: Cascade)
+  task task @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  project project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+    createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+}
+
+model notification {
+  id         Int          @id @default(autoincrement())
+  message   String
+  userId    Int
+  user      user     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  read      Boolean  @default(false)
+  createdAt DateTime @default(now())
+   updatedAt   DateTime     @updatedAt
+}
